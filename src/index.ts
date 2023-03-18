@@ -3,6 +3,9 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import dotenv from 'dotenv';
+
+dotenv.config({path: path.resolve(__dirname, '../.env')});
 
 const app = express();
 
@@ -45,7 +48,7 @@ const upload = multer({
             cb(null, commonPath);
         },
         filename: (req, file, cb) => {
-            cb(null, `${Date.now()}${file.originalname}`);
+            cb(null, `${Date.now()}-${file.originalname}`);
         },
     }),
 });
@@ -69,27 +72,32 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
         return;
     }
     const filepath = path.resolve(__dirname, '../', commonPath, file.filename);
-    const output = path.resolve(__dirname, '../', commonPath, `${file.filename}.webp`);
-    try {
-        // 转换为webp格式
-        await sharp(filepath)
-            .toFormat('webp')
-            .webp({quality: 80, effort: 6})
-            .toFile(output);
-        // 删除原文件
-        fs.unlinkSync(filepath)
-    } catch (e) {
-        console.error(e)
-        res.status(500).send('Error converting image to webp format.');
+    // 去除原文件后缀
+    file.filename = file.filename.replace(/\.[^.]+$/, '.webp');
+    const output = path.resolve(__dirname, '../', commonPath, `${file.filename}`);
+    // 非webp格式的图片才进行转换
+    if (file.mimetype !== 'image/webp') {
+        try {
+            // 转换为webp格式
+            await sharp(filepath)
+                .toFormat('webp')
+                .webp({quality: 80, effort: 6})
+                .toFile(output);
+            // 删除原文件
+            fs.unlinkSync(filepath)
+        } catch (e) {
+            console.error(e)
+            res.status(500).send('Error converting image to webp format.');
+        }
     }
     // 返回文件信息
-    commonPath = commonPath.replace(/\\/g,'/');
+    commonPath = commonPath.replace(/\\/g, '/');
     res.send({
         filename: file.filename,
         originalname: file.originalname,
         mimetype: file.mimetype,
         size: file.size,
-        path: `http://localhost:3000/${commonPath}/${file.filename}.webp`,
+        path: `${process.env.BASEURL || 'http://localhost:3000'}/${commonPath}/${file.filename}`,
     });
     commonPath = 'uploads/';
 });
