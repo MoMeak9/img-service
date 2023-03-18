@@ -2,12 +2,18 @@
   "name": "img-service",
   "version": "1.0.0",
   "description": "简单图床脚本",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },
+  "files": [
+    "dist",
+    "src",
+    "package.json"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MoMeak9/img-service.git"

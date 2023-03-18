@@ -9,6 +9,9 @@ dotenv.config({path: path.resolve(__dirname, '../.env')});
 
 const app = express();
 
+// MIME 类型数组
+const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'];
+
 // 公共路径
 let commonPath = 'uploads/';
 // 上传文件的中间件
@@ -19,7 +22,6 @@ const upload = multer({
     },
     fileFilter: (req, file, cb) => {
         // 限制文件类型
-        const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.mimetype)) {
             cb(new Error('Invalid file type.'));
             return;
@@ -35,15 +37,12 @@ const upload = multer({
             const date = new Date();
             const year = date.getFullYear();
             const month = date.getMonth() + 1;
-            const day = date.getDate();
-            commonPath = path.join(commonPath, year.toString());
-            if (!fs.existsSync(path.join(commonPath))) {
-                fs.mkdirSync(path.join(commonPath));
-            }
-            commonPath = path.join(commonPath, month.toString().padStart(2, '0'));
-            if (!fs.existsSync(path.join(commonPath))) {
-                fs.mkdirSync(path.join(commonPath));
-            }
+
+            commonPath = path.join(commonPath, year.toString(), month.toString().padStart(2, '0'));
+
+            // 创建必要的目录
+            fs.mkdirSync(commonPath, {recursive: true})
+
             // 拼接路径
             cb(null, commonPath);
         },
