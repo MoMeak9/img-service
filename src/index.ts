@@ -1,9 +1,10 @@
-import express, {Request, Response} from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import dotenv from 'dotenv';
+import {defaultErrorHandler, ServerError, Success, ParameterException} from './error';
 
 dotenv.config({path: path.resolve(__dirname, '../.env')});
 
@@ -22,8 +23,8 @@ const upload = multer({
     },
     fileFilter: (req, file, cb) => {
         // 限制文件类型
-        if (!allowedTypes.includes(file.mimetype)) {
-            cb(new Error('Invalid file type.'));
+        if (!allowedTypes.includes(file.mimetype) && req.headers?.authorization !== 'admin') {
+            cb(new ParameterException('文件类型不支持'));
             return;
         }
         cb(null, true);
@@ -64,42 +65,53 @@ app.use((req: Request, res: Response, next) => {
 app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 
 // 上传文件路由
-app.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
-    const file = req.file;
-    if (!file) {
-        res.status(400).send('Please upload a file.');
-        return;
-    }
-    const filepath = path.resolve(__dirname, '../', commonPath, file.filename);
-    // 去除原文件后缀
-    file.filename = file.filename.replace(/\.[^.]+$/, '.webp');
-    const output = path.resolve(__dirname, '../', commonPath, `${file.filename}`);
-    // 非webp格式的图片才进行转换
-    if (file.mimetype !== 'image/webp') {
-        try {
-            // 转换为webp格式
-            await sharp(filepath)
-                .toFormat('webp')
-                .webp({quality: 80, effort: 6})
-                .toFile(output);
-            // 删除原文件
-            fs.unlinkSync(filepath)
-        } catch (e) {
-            console.error(e)
-            res.status(500).send('Error converting image to webp format.');
+app.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
+    upload.single('file')(req, res, async (err) => {
+        if (err) {
+            next(new ParameterException(err.message));
+            return;
         }
-    }
-    // 返回文件信息
-    commonPath = commonPath.replace(/\\/g, '/');
-    res.send({
-        filename: file.filename,
-        originalname: file.originalname,
-        mimetype: file.mimetype,
-        size: file.size,
-        path: `${process.env.BASEURL || 'http://localhost:3000'}/${commonPath}/${file.filename}`,
+        const file = req.file;
+        if (!file) {
+            next(new ParameterException('文件不能为空'));
+            return;
+        }
+        const isImage = allowedTypes.includes(file.mimetype);
+        const filepath = path.resolve(__dirname, '../', commonPath, file.filename);
+        // 去除原文件后缀
+        file.filename = isImage ? file.filename.replace(/\.[^.]+$/, '.webp') : file.filename;
+        const output = path.resolve(__dirname, '../', commonPath, `${file.filename}`);
+        // 非webp格式的图片才进行转换
+        if (file.mimetype !== 'image/webp' && isImage) {
+            try {
+                // 转换为webp格式
+                await sharp(filepath)
+                    .toFormat('webp')
+                    .webp({quality: 80, effort: 6})
+                    .toFile(output);
+                // 删除原文件
+                fs.unlinkSync(filepath)
+            } catch (e) {
+                console.error(e);
+                next(new ServerError('图片转换失败'));
+            }
+        }
+        // 返回文件信息
+        commonPath = commonPath.replace(/\\/g, '/');
+        next(new Success({
+            filename: file.filename,
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            path: `${process.env.BASEURL || 'http://localhost:3000'}/${commonPath}/${file.filename}`,
+        }));
+        commonPath = 'uploads/';
+
     });
-    commonPath = 'uploads/';
 });
+
+// 异常处理
+app.use(defaultErrorHandler);
 
 // 启动服务器
 const port = process.env.PORT || 3000;
