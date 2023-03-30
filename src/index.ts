@@ -43,7 +43,7 @@ const upload = multer({
 
             // 创建必要的目录
             fs.mkdirSync(commonPath, {recursive: true})
-
+            
             // 拼接路径
             cb(null, commonPath);
         },
@@ -106,7 +106,6 @@ app.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
             path: `${process.env.BASEURL || 'http://localhost:3000'}/${commonPath}/${file.filename}`,
         }));
         commonPath = 'uploads/';
-
     });
 });
 

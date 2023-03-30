@@ -11,7 +11,7 @@ const sshConfig = {
     host: process.env.HOST || '127.0.0.1',
     port: process.env.SSHPORT || 22,
     username: process.env.USER || 'root',
-    privateKey: fs.readFileSync(process.env.KEYFILE || '/.ssh/id_rsa').toString(),
+    privateKey: process.env.SSHKEY || fs.readFileSync(process.env.KEYFILE || '/.ssh/id_rsa').toString(),
 };
 
 // 本地目录路径和远程目录路径
@@ -28,7 +28,7 @@ conn.on('ready', () => {
     const uploadPromise = [];
     conn.sftp((err, sftp) => {
         if (err) throw err;
-        const files = ['dist/index.js', 'package.json', '.env'];
+        const files = ['dist/index.js', 'dist/error.js', 'package.json', '.env'];
 
         const uploadFile = (file) => {
             return new Promise((resolve, reject) => {
@@ -65,9 +65,9 @@ conn.on('ready', () => {
                     console.log('远程命令执行完毕');
                     conn.end();
                 }).on('data', (data) => {
-                    console.log('远程命令输出：' + data);
+                    console.log('远程命令输出：\n' + data);
                 }).stderr.on('data', (data) => {
-                    console.log('远程命令错误：' + data);
+                    console.log('远程命令错误：\n' + data);
                 });
                 stream.end('ls -l /www/wwwroot/img-service\npm2 restart img-service\nexit\n');
             });
