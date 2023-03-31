@@ -43,7 +43,7 @@ const upload = multer({
 
             // 创建必要的目录
             fs.mkdirSync(commonPath, {recursive: true})
-            
+
             // 拼接路径
             cb(null, commonPath);
         },
@@ -82,7 +82,7 @@ app.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
         file.filename = isImage ? file.filename.replace(/\.[^.]+$/, '.webp') : file.filename;
         const output = path.resolve(__dirname, '../', commonPath, `${file.filename}`);
         // 非webp格式的图片才进行转换
-        if (file.mimetype !== 'image/webp' && isImage) {
+        if (file.mimetype !== 'image/webp' && file.mimetype !== 'image/gif' && isImage) {
             try {
                 // 转换为webp格式
                 await sharp(filepath)
