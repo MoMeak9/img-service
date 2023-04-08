@@ -21,6 +21,7 @@ const remoteDir = '/www/wwwroot/img-service';
 
 // 创建SSH连接
 const conn = new Client();
+// 监听ready事件
 conn.on('ready', () => {
     console.log('SSH连接成功');
 
@@ -28,7 +29,7 @@ conn.on('ready', () => {
     const uploadPromise = [];
     conn.sftp((err, sftp) => {
         if (err) throw err;
-        const files = ['dist/index.js', 'dist/error.js', 'package.json', '.env'];
+        const files = ['dist', 'package.json', '.env'];
 
         const uploadFile = (file) => {
             return new Promise((resolve, reject) => {
@@ -52,9 +53,22 @@ conn.on('ready', () => {
             });
         }
 
-        files.forEach((file) => {
-            uploadPromise.push(uploadFile(file));
-        });
+        const uploadDir = (files) => {
+            files.forEach((file) => {
+                // 检查是否存在文件
+                const isExist = fs.existsSync(file);
+                const stat = fs.lstatSync(file);
+                if (!isExist) {
+                    console.log(`文件 ${file} 不存在`);
+                }else if (stat.isDirectory(file)){
+                    const dirFiles = fs.readdirSync(file);
+                    uploadDir(dirFiles.map((dirFile) => file + '/' + dirFile));
+                }else if (stat.isFile(file)){
+                    uploadPromise.push(uploadFile(file));
+                }
+            });
+        }
+        uploadDir(files);
 
         Promise.all(uploadPromise).then(() => {
             console.log('所有文件上传成功');
@@ -76,6 +90,11 @@ conn.on('ready', () => {
         });
     });
 }).connect(sshConfig);
+
+// 监听error事件
+conn.on('error', (err) => {
+    console.error('SSH连接失败', err);
+});
 
 // 结束SSH连接
 conn.on('end', () => {
