@@ -131,3 +131,4 @@ key
 .yarn/install-state.gz
 .pnp.*
 
+.idea

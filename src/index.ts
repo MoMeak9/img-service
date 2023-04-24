@@ -77,12 +77,13 @@ app.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
             return;
         }
         const isImage = allowedTypes.includes(file.mimetype);
+        const isGif = file.mimetype === 'image/gif'
         const filepath = path.resolve(__dirname, '../', commonPath, file.filename);
         // 去除原文件后缀
-        file.filename = isImage ? file.filename.replace(/\.[^.]+$/, '.webp') : file.filename;
+        file.filename = isImage && !isGif ? file.filename.replace(/\.[^.]+$/, '.webp') : file.filename;
         const output = path.resolve(__dirname, '../', commonPath, `${file.filename}`);
         // 非webp格式的图片才进行转换
-        if (file.mimetype !== 'image/webp' && file.mimetype !== 'image/gif' && isImage) {
+        if (file.mimetype !== 'image/webp' && !isGif && isImage) {
             try {
                 // 转换为webp格式
                 await sharp(filepath)
