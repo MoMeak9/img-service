@@ -101,7 +101,7 @@ app.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
         commonPath = commonPath.replace(/\\/g, '/');
         next(new Success({
             filename: file.filename,
-            originalname: file.originalname,
+            originalName: file.originalname,
             mimetype: file.mimetype,
             size: file.size,
             path: `${process.env.BASEURL || 'http://localhost:3000'}/${commonPath}/${file.filename}`,
