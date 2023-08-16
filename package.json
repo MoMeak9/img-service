@@ -8,8 +8,8 @@
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "deploy": "node deploy.js",
-    "test": "nodemon src/videoToGif.ts"
+    "test": "nodemon src/videoToGif.ts",
+    "deploy": "npm run build && s2p publish"
   },
   "files": [
     "dist",
@@ -45,6 +45,7 @@
     "@types/node": "^18.15.3",
     "@types/sharp": "^0.31.1",
     "nodemon": "^2.0.21",
+    "ssh-publish": "^1.1.1",
     "ssh2": "^1.11.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.2"

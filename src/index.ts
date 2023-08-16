@@ -62,7 +62,9 @@ app.use((req: Request, res: Response, next) => {
 });
 
 // 静态文件路由
-app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.resolve(__dirname, '../uploads'),{
+    maxAge: '365d',
+}));
 
 // 上传文件路由
 app.post('/upload', async (req: Request, res: Response, next: NextFunction) => {

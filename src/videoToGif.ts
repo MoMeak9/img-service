@@ -14,8 +14,10 @@ export const video2Gif = async (videoPath: string, gifPath: string, width: numbe
         .on('error', (err:any) => console.error(err))
         .run();
 }
+const path = require('path');
+const videoPath = path.resolve(__dirname, './1.mp4');
 
-video2Gif('F:\\个人项目\\img-service\\src\\1.mp4', 'F:\\个人项目\\img-service\\src\\1.gif', 300, 300, 10);
+video2Gif(videoPath, '1.gif', 300, 300);
 
 // 当前执行目录
 // 匹配是否为绝对路径
