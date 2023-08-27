@@ -66,6 +66,10 @@ app.use('/uploads', express.static(path.resolve(__dirname, '../uploads'),{
     maxAge: '365d',
 }));
 
+app.use('/images', express.static(path.resolve(__dirname, '../images'),{
+    maxAge: '365d',
+}));
+
 // 上传文件路由
 app.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
     upload.single('file')(req, res, async (err) => {
