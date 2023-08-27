@@ -47,8 +47,8 @@ devDependencies:
     specifier: ^2.0.21
     version: registry.npmmirror.com/nodemon@2.0.21
   ssh-publish:
-    specifier: ^1.1.1
-    version: 1.1.1(archiver@5.3.1)(dotenv@16.0.3)(inquirer@8.2.6)(node-ssh@13.1.0)(yargs@17.7.2)
+    specifier: ^1.2.1
+    version: 1.2.1(archiver@5.3.1)(chalk@4.1.2)(dotenv@16.0.3)(inquirer@8.2.6)(node-ssh@13.1.0)(ora@5.4.1)(yargs@17.7.2)
   ssh2:
     specifier: ^1.11.0
     version: registry.npmmirror.com/ssh2@1.11.0
@@ -589,6 +589,7 @@ packages:
 
   /nan@2.17.0:
     resolution: {integrity: sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -736,14 +737,16 @@ packages:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
     dev: true
 
-  /ssh-publish@1.1.1(archiver@5.3.1)(dotenv@16.0.3)(inquirer@8.2.6)(node-ssh@13.1.0)(yargs@17.7.2):
-    resolution: {integrity: sha512-GELT3fao0+JbI4LBUIq/6hPGMpBCd243qozjaJDmht/bpvB1/o33590Tliy4ONNbyEXOE+nZuTwowXetw+3mhg==}
+  /ssh-publish@1.2.1(archiver@5.3.1)(chalk@4.1.2)(dotenv@16.0.3)(inquirer@8.2.6)(node-ssh@13.1.0)(ora@5.4.1)(yargs@17.7.2):
+    resolution: {integrity: sha512-gq7w66TbWngOqdhcF8ecSB869BHzycnwOCnFY3ic8l86xiH2h8nQ3VA95LvWaJlDOQkWRRddjfcgfwKNwaojKw==}
     hasBin: true
     peerDependencies:
       archiver: ^5.3.1
+      chalk: ^4.1.2
       dotenv: ^16.3.1
       inquirer: ^8.2.6
       node-ssh: ^13.1.0
+      ora: ^5.4.1
       yargs: ^17.7.2
     dependencies:
       archiver: 5.3.1
@@ -1208,6 +1211,7 @@ packages:
     name: buildcheck
     version: 0.0.3
     engines: {node: '>=10.0.0'}
+    requiresBuild: true
     dev: true
     optional: true
 
